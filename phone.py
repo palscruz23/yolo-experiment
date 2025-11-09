@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 import cv2
 import os
+import time
 
 # Add folders if does not exist
 if not os.path.exists('data'):
@@ -13,6 +14,7 @@ model = YOLO('yolov8n.pt')
 phone_url = 'https://192.168.20.19:8080/video'
 
 cap = cv2.VideoCapture(phone_url)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 if not cap.isOpened():
     print("Failed to connect to phone!")
@@ -21,14 +23,26 @@ if not cap.isOpened():
 print("Connected to phone app!")
 print("Press q to quit")
 
+rot=1
+fps_list = []
 while True:
+    start_time = time.time()
     ret, frame = cap.read()
     if not ret:
         break
-
+    
+    if rot == 1:
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)    
     results = model(frame, conf=0.5)
     annotated_frame = results[0].plot()
 
+    fps = 1 / (time.time() - start_time)
+    fps_list.append(fps)
+    if len(fps_list) > 20:
+        fps_list.pop(0)
+    avg_fps = sum(fps_list) / len(fps_list)
+    cv2.putText(annotated_frame, f'FPS: "{avg_fps:.1f}',
+                (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     cv2.imshow("YOLO phone camera", annotated_frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
