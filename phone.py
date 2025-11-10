@@ -10,6 +10,8 @@ if not os.path.exists('data'):
     os.mkdir('data')
 if not os.path.exists('output'):
     os.mkdir('output')
+if not os.path.exists('output/phone'):
+    os.mkdir('output/phone')
 
 model = YOLO('yolov8n.pt')
 
@@ -49,14 +51,27 @@ time.sleep(2)  # Give thread time to start
 
 print("Connected! Press 'q' to quit")
 
-cv2.namedWindow('YOLO phone camera', cv2.WINDOW_NORMAL)
-cv2.resizeWindow('YOLO phone camera', 600, 800)
+
 
 # Rotation setting
 rotation_angle = 90  # Change this: 0, 90, 180, or 270
 
 fps_list = []
 rot=1
+
+# Save stream
+output_filename = f'output/phone/recording_{int(time.time())}.mp4'
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+fps_recording = 20
+frame_width = 600
+frame_height = 800
+out = cv2.VideoWriter(output_filename, fourcc, fps_recording, (frame_width, frame_height))
+
+print(f'Recording to: {output_filename}')
+
+cv2.namedWindow('YOLO phone camera', cv2.WINDOW_NORMAL)
+cv2.resizeWindow('YOLO phone camera', frame_width, frame_height)
+
 while True:
     start_time = time.time()
     
@@ -71,6 +86,8 @@ while True:
     results = model(frame, conf=0.5)
     annotated_frame = results[0].plot()
 
+    out.write(annotated_frame)
+
     fps = 1 / (time.time() - start_time)
     fps_list.append(fps)
     if len(fps_list) > 20:
@@ -83,5 +100,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-cap.release()
-cv2.destrotAllWindows()
+out.release()
+cv2.destroyAllWindows()
+
+print(f'\nVideo saved to: {output_filename}')
