@@ -60,8 +60,8 @@ fps_list = []
 rot=1
 
 # Save stream
-output_filename = f'output/phone/recording_{int(time.time())}.mp4'
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+output_filename = f'output/phone/recording_{int(time.time())}.avi'
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
 fps_recording = 20
 frame_width = 600
 frame_height = 800
