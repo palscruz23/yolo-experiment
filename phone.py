@@ -13,7 +13,7 @@ if not os.path.exists('output'):
 if not os.path.exists('output/phone'):
     os.mkdir('output/phone')
 
-model = YOLO('yolov8n.pt')
+model = YOLO("yolo12l.pt")
 
 phone_url = 'https://192.168.20.19:8080/video'
 
