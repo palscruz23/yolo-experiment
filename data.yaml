@@ -1,0 +1,5 @@
+path: /absolute/path/to/oiv7_yolo_subset
+train: images/train
+val: images/val
+
+names: [Car, Person]
