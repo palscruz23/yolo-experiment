@@ -115,7 +115,7 @@ while True:
     
     # if rot == 1:
     #     frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)    
-    results = model(frame, conf=0.5, verbose=True)
+    results = model(frame, conf=0.5, verbose=True, classes=[41, 45, 64, 66])
     annotated_frame = results[0].plot()
 
     out.write(annotated_frame)
