@@ -1,0 +1,7 @@
+"Human beard",
+"Human ear",
+"Human eye",
+"Human face",
+"Human hair",
+"Human mouth",
+"Human nose"
