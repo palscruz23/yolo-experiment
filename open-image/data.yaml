@@ -1,0 +1,12 @@
+path: open_images_dataset
+train: images/train
+val: images/val
+nc: 3
+names:
+ - Human beard,
+ - Human ear,
+ - Human eye,
+ - Human face,
+ - Human hair,
+ - Human mouth,
+ - Human nose

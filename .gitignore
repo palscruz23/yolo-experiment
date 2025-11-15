@@ -3,3 +3,5 @@ output/
 *.pt
 camera.py
 run/
+open-image/dataset/
+open-image/__pycache__
