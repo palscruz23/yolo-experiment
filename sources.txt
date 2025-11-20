@@ -1,7 +1,0 @@
-Human beard,
-Human ear,
-Human eye,
-Human face,
-Human hair,
-human mouth,
-Human nose
