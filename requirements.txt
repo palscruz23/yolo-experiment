@@ -1,8 +1,6 @@
-ultralytics
-opencv-python
-pillow
-fiftyone
 streamlit
 streamlit-webrtc
+ultralytics
+opencv-python-headless  # Use headless in Docker
 av
-pyngrok
+aiortc
