@@ -30,8 +30,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY app.py .
 
-# Download YOLO model during build to avoid downloading at runtime
-RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+# # Download YOLO model during build to avoid downloading at runtime
+# RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
 
 # Expose Streamlit port
 EXPOSE 7860

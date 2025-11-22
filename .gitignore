@@ -1,4 +1,5 @@
 data/
 output/
 camera.py
+*.pt
 archive/
