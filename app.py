@@ -48,6 +48,12 @@ if device == 'cuda':
 print("Loading YOLO model...")
 model = YOLO("yolov8n.pt")
 model.to(device)  # Move model to GPU if available
+
+# Optimize for GPU with FP16 (half precision) for faster inference
+if device == 'cuda':
+    print("Enabling FP16 (half precision) for faster GPU inference...")
+    model.model.half()  # Use FP16 for GPU
+
 print(f"Model loaded successfully on {device}!")
 
 # Threading components for faster processing (inspired by phone.py)
@@ -55,9 +61,11 @@ frame_queue = queue.Queue(maxsize=2)  # Keep only 2 frames to prevent lag
 processing_lock = threading.Lock()
 latest_result = None
 is_processing = False
+frame_count = 0
 
-# FPS tracking
+# FPS tracking with more detailed metrics
 fps_list = deque(maxlen=20)  # Rolling average of last 20 frames
+inference_times = deque(maxlen=20)  # Track inference time separately
 last_process_time = time.time()
 
 @spaces.GPU
@@ -81,7 +89,6 @@ def detect_objects(image, conf_threshold, iou_threshold):
         source=image,
         conf=conf_threshold,
         iou=iou_threshold,
-        device=device,
         verbose=False
     )
 
@@ -92,35 +99,57 @@ def detect_objects(image, conf_threshold, iou_threshold):
     # annotated_image = cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB)
 
     return annotated_image
+
 @spaces.GPU
 def process_frame_thread(image, conf=0.25):
-    """Thread worker to process frames with FPS tracking"""
-    global latest_result, is_processing, fps_list, last_process_time
+    """Thread worker to process frames with detailed FPS tracking"""
+    global latest_result, is_processing, fps_list, inference_times, last_process_time, frame_count
 
     try:
-        start_time = time.time()
+        total_start = time.time()
 
-        # Run YOLO inference on GPU if available
-        results = model.predict(source=image, conf=conf, device=device, verbose=False)
+        # Resize image for faster processing
+        h, w = image.shape[:2]
+        max_size = 640  # YOLO default, reduce for more speed
+        if max(h, w) > max_size:
+            scale = max_size / max(h, w)
+            image = cv2.resize(image, (int(w * scale), int(h * scale)))
+
+        # Run YOLO inference on GPU
+        inference_start = time.time()
+        results = model.predict(
+            source=image,
+            conf=conf,
+            device=device,
+            verbose=False,
+            half=True if device == 'cuda' else False  # Use FP16 on GPU
+        )
+        inference_time = (time.time() - inference_start) * 1000  # Convert to ms
+
         annotated_image = results[0].plot()
         # annotated_image = cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB)
 
-        # Calculate and display FPS
-        fps = 1 / (time.time() - start_time)
+        # Calculate FPS metrics
+        total_time = time.time() - total_start
+        fps = 1 / total_time if total_time > 0 else 0
         fps_list.append(fps)
-        avg_fps = sum(fps_list) / len(fps_list) if fps_list else fps
+        inference_times.append(inference_time)
 
-        # Add FPS overlay to image with device info
-        cv2.putText(annotated_image, f'FPS: {avg_fps:.1f} ({device.upper()})',
-                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        avg_fps = sum(fps_list) / len(fps_list) if fps_list else fps
+        avg_inference = sum(inference_times) / len(inference_times) if inference_times else inference_time
+
+        # Add detailed FPS overlay with inference time
+        cv2.putText(annotated_image, f'FPS: {avg_fps:.1f} | Inference: {avg_inference:.0f}ms | {device.upper()}',
+                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         with processing_lock:
             latest_result = annotated_image
             last_process_time = time.time()
+            frame_count += 1
     finally:
         with processing_lock:
             is_processing = False
-@spaces.GPU
+
 def detect_objects_webcam(image):
     """Threaded version for webcam streaming with frame skipping and FPS display"""
     global latest_result, is_processing
