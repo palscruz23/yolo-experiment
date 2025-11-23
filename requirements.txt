@@ -1,6 +1,4 @@
-streamlit
-streamlit-webrtc
+gradio
 ultralytics
-opencv-python-headless  # Use headless in Docker
-av
-aiortc
+opencv-python-headless
+numpy

@@ -26,14 +26,8 @@ COPY app.py .
 # # Download YOLO model during build to avoid downloading at runtime
 # RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
 
-# Expose Streamlit port
+# Expose Gradio port
 EXPOSE 7860
 
-# Set environment variables for Streamlit
-ENV STREAMLIT_SERVER_PORT=7860
-ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
-ENV STREAMLIT_SERVER_HEADLESS=true
-ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
-
 # Run the application
-CMD ["streamlit", "run", "app.py", "--server.port=7860", "--server.address=0.0.0.0"]
+CMD ["python", "app.py"]
