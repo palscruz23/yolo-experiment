@@ -89,6 +89,7 @@ def detect_objects(image, conf_threshold, iou_threshold):
         source=image,
         conf=conf_threshold,
         iou=iou_threshold,
+        device=device,
         verbose=False
     )
 
