@@ -1,14 +1,3 @@
----
-title: YOLO Object Detection
-emoji: 🎯
-colorFrom: blue
-colorTo: green
-sdk: gradio
-sdk_version: 4.44.0
-app_file: app.py
-pinned: false
----
-
 # YOLO Experiment
 
 A collection of Python scripts for experimenting with YOLO (You Only Look Once) models for various computer vision tasks including object detection and pose estimation.

@@ -1,7 +1,7 @@
-gradio>=4.0.0
-ultralytics>=8.0.200
-huggingface_hub>=0.19.0
+gradio
+ultralytics
 opencv-python-headless
-pillow
+numpy
 torch
-torchvision
+pillow
+spaces>=0.44b3
