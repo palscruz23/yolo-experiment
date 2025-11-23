@@ -48,12 +48,6 @@ if device == 'cuda':
 print("Loading YOLO model...")
 model = YOLO("yolov8n.pt")
 model.to(device)  # Move model to GPU if available
-
-# Optimize for GPU with FP16 (half precision) for faster inference
-if device == 'cuda':
-    print("Enabling FP16 (half precision) for faster GPU inference...")
-    model.model.half()  # Use FP16 for GPU
-
 print(f"Model loaded successfully on {device}!")
 
 # Threading components for faster processing (inspired by phone.py)
@@ -122,8 +116,7 @@ def process_frame_thread(image, conf=0.25):
             source=image,
             conf=conf,
             device=device,
-            verbose=False,
-            half=True if device == 'cuda' else False  # Use FP16 on GPU
+            verbose=False
         )
         inference_time = (time.time() - inference_start) * 1000  # Convert to ms
 
