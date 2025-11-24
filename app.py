@@ -57,6 +57,7 @@ model = YOLO("yolov8n.pt")
 # Don't move to GPU in main process for Spaces compatibility
 if not IS_SPACES and device == 0:
     model.to(device)
+    print(f"Model using Zero GPU successfully!")
 print(f"Model loaded successfully!")
 
 # Threading components for faster processing (inspired by phone.py)
@@ -225,19 +226,23 @@ with gr.Blocks(title="YOLOv8 Object Detection") as demo:
                 label="Webcam Input",
                 sources=["webcam"],
                 streaming=True,
-                type="numpy"
+                type="numpy",
+                height=480,
+                width=640
             )
             webcam_output = gr.Image(
                 label="Detection Output",
                 streaming=True,
-                type="numpy"
+                type="numpy",
+                height=480,
+                width=640
             )
         
         webcam_input.stream(
             fn=detect_objects,
             inputs=webcam_input,
             outputs=webcam_output,
-            stream_every=0.1  # ~30 FPS target, actual FPS depends on inference speed
+            stream_every=0.15  # ~30 FPS target, actual FPS depends on inference speed
         )
 
     gr.Markdown(
