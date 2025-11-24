@@ -27,10 +27,10 @@ import cv2
 import numpy as np
 from PIL import Image
 import os
-import threading
-import queue
-import time
-from collections import deque
+# import threading
+# import queue
+# import time
+# from collections import deque
 import torch
 import spaces
 
@@ -60,17 +60,16 @@ if not IS_SPACES and device == 0:
     print(f"Model using Zero GPU successfully!")
 print(f"Model loaded successfully!")
 
-# Threading components for faster processing (inspired by phone.py)
-frame_queue = queue.Queue(maxsize=2)  # Keep only 2 frames to prevent lag
-processing_lock = threading.Lock()
-latest_result = None
-is_processing = False
+# # Threading components for faster processing (inspired by phone.py)
+# frame_queue = queue.Queue(maxsize=2)  # Keep only 2 frames to prevent lag
+# processing_lock = threading.Lock()
+# latest_result = None
+# is_processing = False
 
-# FPS tracking
-fps_list = deque(maxlen=5)  # Rolling average of last 20 frames
-last_process_time = time.time()
+# # FPS tracking
+# fps_list = deque(maxlen=5)  # Rolling average of last 20 frames
+# last_process_time = time.time()
 
-@spaces.GPU
 def detect_objects(image):
     """
     Detect objects in an image using YOLOv8
@@ -186,6 +185,16 @@ def detect_objects(image):
 #     with processing_lock:
 #         return latest_result if latest_result is not None else image
 
+from ultralytics import solutions
+
+inf = solutions.Inference(model="yolo11n.pt")
+@spaces.GPU
+def detect(image):
+    results = inf.inference(source=image)
+    return results[0].plot()
+
+
+
 # Create Gradio interface with Blocks for better layout
 with gr.Blocks(title="YOLOv8 Object Detection") as demo:
     
@@ -238,11 +247,18 @@ with gr.Blocks(title="YOLOv8 Object Detection") as demo:
                 width=640
             )
         
-        webcam_input.stream(
-            fn=detect_objects,
+        # webcam_input.stream(
+        #     fn=detect,
+        #     inputs=webcam_input,
+        #     outputs=webcam_output,
+        #     stream_every=0.15  # ~30 FPS target, actual FPS depends on inference speed
+        # )
+
+        gr.Interface(
+            fn=detect,
             inputs=webcam_input,
             outputs=webcam_output,
-            stream_every=0.15  # ~30 FPS target, actual FPS depends on inference speed
+            api_name="detect"  # Important for API access
         )
 
     gr.Markdown(
