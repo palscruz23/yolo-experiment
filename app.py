@@ -2,8 +2,10 @@ import streamlit as st
 from ultralytics import YOLO
 import cv2
 import os
+import numpy as np
+from PIL import Image
 
-st.title("Object Detection with YOLO")
+st.title("YOLO Experience")
 
 with st.sidebar:
     st.header("Settings")
@@ -20,25 +22,39 @@ with st.sidebar:
                               value = 0.5,
                               step = 0.05)
 
-model = YOLO(st.model_choice)
+model = YOLO(model_choice)
 
-if st.application_mode == "Object Detection":
-    st.subheader("Object Detection Mode")
-    # camera_image = st.camera_input("Take a picture")
-    camera_image = 0
-    if camera_image is not None:
+if application_mode == "Object Detection":
+    col1, col2 = st.columns(2)
+    with col1:
 
-        results = model.predict(source=0,
-                                conf = confidence,
-                                iou = iou, 
-                                verbose=False,
-                                stream=True
-                                )
+        st.subheader("Object Detection Mode")
+        run = st.button("▶️ Start Detection", type="primary")
+        stop = st.button("⏹️ Stop Detection")
 
-        result = results[0] # Get first results
-        img_box = result.plot() # Draw bounding box
-        img_box = cv2.cvtColor(img_box, cv2.COLOR_BGR2RGB) # Convert color from BGR to RGB
-        st.image(img_box, caption = "Object Detection", use_container_width=True)
+        if run:
+            st.success("🔴 Detection Active")
 
-    
+            camera_image = st.camera_input("Take a picture")
+            if camera_image is not None:
+                # Auto-reload for continuous capture
+                st.rerun()
+    with col2:
+        if run:
+            if camera_image is not None:
+                img = Image.open(camera_image)
+                img_array = np.array(img)
+                results = model(source=img_array,
+                                        conf = confidence,
+                                        iou = iou, 
+                                        verbose=False,
+                                        stream=True
+                                        )
+
+                result = results[0] # Get first results
+                img_box = result.plot() # Draw bounding box
+                img_box = cv2.cvtColor(img_box, cv2.COLOR_BGR2RGB) # Convert color from BGR to RGB
+                st.image(img_box, caption = "Object Detection", use_container_width=True)
+
+            
 
