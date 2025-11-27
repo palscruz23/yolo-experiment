@@ -4,12 +4,13 @@ A collection of Python scripts for experimenting with YOLO (You Only Look Once) 
 
 ## Overview
 
-This repository contains implementations for running YOLO models on different input sources (images, webcam, phone camera) with support for both object detection and pose estimation tasks.
+This repository contains implementations for running YOLO models on different input sources (images, webcam, phone camera) with support for object detection, pose estimation, and instance segmentation tasks. Includes both command-line scripts and an interactive Streamlit web application for easy experimentation.
 
 ## Repository Structure
 
 ```
 yolo-experiment/
+├── app.py               # Streamlit web application
 ├── object-detection/     # Object detection scripts
 │   ├── image.py         # Process static images
 │   ├── webcam.py        # Webcam stream detection
@@ -28,8 +29,9 @@ yolo-experiment/
 The repository includes several pre-trained YOLO model weights:
 
 **Object Detection Models:**
-- `yolov8n.pt` - YOLOv8 Nano 
+- `yolov8n.pt` - YOLOv8 Nano
 - `yolov8m.pt` - YOLOv8 Medium
+- `yolov8m-oiv7` - YOLOv8 Medium trained on Open Images V7
 - `yolov8l.pt` - YOLOv8 Large
 - `yolo12n.pt` - YOLO12 Nano
 - `yolo12s.pt` - YOLO12 Small
@@ -37,6 +39,11 @@ The repository includes several pre-trained YOLO model weights:
 
 **Pose Estimation Models:**
 - `yolov8n-pose.pt` - YOLOv8 Nano Pose
+- `yolo11n-pose.pt` - YOLO11 Nano Pose
+
+**Instance Segmentation Models:**
+- `yolov8n-seg.pt` - YOLOv8 Nano Segmentation
+- `yolo11n-seg.pt` - YOLO11 Nano Segmentation
 
 ## Installation
 
@@ -56,6 +63,7 @@ pip install -r requirements.txt
 - opencv-python
 - pillow
 - fiftyone
+- streamlit (required for the web application)
 
 ## Usage
 
@@ -117,6 +125,40 @@ Features:
 - Detects 17 body keypoints (nose, eyes, ears, shoulders, elbows, wrists, hips, knees, ankles)
 - Real-time FPS display
 - Press 'q' to quit
+
+### Streamlit Web Application
+
+Interactive web-based interface for running YOLO models with real-time webcam processing:
+
+```bash
+streamlit run app.py
+```
+
+**Features:**
+- Web-based UI accessible via browser
+- Three application modes:
+  - **Object Detection** - Detect and classify objects in real-time
+  - **Pose Recognition** - Track human body keypoints
+  - **Instance Segmentation** - Segment and identify individual object instances
+- Configurable settings via sidebar:
+  - Model selection (mode-specific models available)
+  - Confidence threshold slider (0.0-1.0)
+  - IoU (Intersection over Union) threshold slider (0.0-1.0)
+- Real-time webcam stream processing
+- Live preview of processed frames
+
+**Available Models:**
+- Object Detection: `yolo12n.pt`, `yolov8n.pt`, `yolov8m-oiv7`
+- Pose Recognition: `yolo11n-pose.pt`, `yolov8n-pose.pt`
+- Instance Segmentation: `yolo11n-seg.pt`, `yolov8n-seg.pt`
+
+**Requirements:**
+In addition to the base requirements, you'll need:
+```bash
+pip install streamlit
+```
+
+The app automatically opens in your default browser at `http://localhost:8501`
 
 ## Configuration
 
