@@ -173,6 +173,7 @@ import cv2
 
 model = YOLO("yolo11n.pt")
 
+@spaces.GPU
 def predict_webcam(image, confidence):
     """Real-time webcam detection"""
     if image is None:
