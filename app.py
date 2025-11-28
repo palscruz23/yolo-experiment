@@ -168,30 +168,47 @@
 
 
 
-from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfiguration
-import av
-import threading
+import streamlit as st
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, RTCConfiguration
 from ultralytics import YOLO
+import av
 
-class YOLOProcessor(VideoProcessorBase):
+class YOLOVideoTransformer(VideoTransformerBase):
     def __init__(self):
-        self.model = YOLO("yolov8n.pt")  # Use nano for speed
-        self.lock = threading.Lock()
-        self.result_frame = None
-
+        self.model = YOLO("yolo11n.pt")
+        self.conf_threshold = 0.25
+    
     def recv(self, frame):
         img = frame.to_ndarray(format="bgr24")
         
-        # Only process if not already processing
-        if self.lock.acquire(blocking=False):
-            try:
-                results = self.model(img, verbose=False)
-                self.result_frame = results[0].plot()
-            finally:
-                self.lock.release()
+        # Run YOLO detection
+        results = self.model.predict(img, conf=self.conf_threshold, verbose=False)
         
-        # Return last processed frame (or original if none yet)
-        output = self.result_frame if self.result_frame is not None else img
-        return av.VideoFrame.from_ndarray(output, format="bgr24")
-    
-webrtc_streamer(key="yolo", video_processor_factory=YOLOProcessor)
+        # Get annotated frame
+        annotated = results[0].plot()
+        
+        return av.VideoFrame.from_ndarray(annotated, format="bgr24")
+
+st.title("🎯 YOLO Real-Time Detection")
+
+# Sidebar settings
+st.sidebar.title("Settings")
+confidence = st.sidebar.slider("Confidence Threshold", 0.0, 1.0, 0.25, 0.05)
+
+# RTC Configuration for STUN server
+RTC_CONFIGURATION = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+)
+
+# WebRTC streamer
+ctx = webrtc_streamer(
+    key="yolo-detection",
+    video_transformer_factory=YOLOVideoTransformer,
+    rtc_configuration=RTC_CONFIGURATION,
+    media_stream_constraints={"video": True, "audio": False},
+    async_transform=True,
+)
+
+# Update confidence threshold
+if ctx.video_transformer:
+    ctx.video_transformer.conf_threshold = confidence
