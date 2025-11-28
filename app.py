@@ -58,7 +58,9 @@ with st.sidebar:
         model_choice = st.selectbox("Choose Model", ["yolo11n-pose.pt", "yolov8n-pose.pt"])
     elif application_mode == "Instance Segmentation":
         model_choice = st.selectbox("Choose Model", ["yolo11n-seg.pt", "yolov8n-seg.pt"])  
-    model = YOLO(model_choice)
+    with st.spinner("Loading model..."):
+        model = YOLO(model_choice)
+    st.success("Model successfully loaded!")
     classes_input = st.multiselect("Select Classes", 
                                    options=list(model.names.values()), 
                                    default=None,
