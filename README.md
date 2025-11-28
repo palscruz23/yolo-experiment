@@ -1,3 +1,13 @@
+---
+title: YOLO Live Object Detection
+emoji: 🎯
+colorFrom: blue
+colorTo: red
+sdk: docker
+pinned: false
+license: mit
+---
+
 # YOLO Experiment
 
 A collection of Python scripts for experimenting with YOLO (You Only Look Once) models for various computer vision tasks including object detection and pose estimation.
