@@ -114,6 +114,10 @@ with st.sidebar:
                             max_value = 10,
                             value = 5,
                             step = 1)
+        edge = st.checkbox("Edge Detection")
+        if edge is not None and edge:
+            color_edge_choice = st.color_picker("Select edge color", "#000000")
+            color_edge = hex2rgb(color_edge_choice)
 
 if application_mode == "Object Detection":
     st.subheader("Detection Output")
@@ -155,32 +159,13 @@ while True:
         img_box = results[0].plot(boxes=True, masks=True) # Draw bounding box
     elif application_mode == "Instance Segmentation":
         img_box = results[0].plot(boxes=False, masks=True) # Draw bounding box
-        img = cv2.cvtColor(img_box, cv2.COLOR_BGR2RGB) # Convert color from BGR to RGB
+        img = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR) # Convert color from BGR to RGB
 
     # img_box = frame
     cv2.putText(img_box, f'FPS: "{avg_fps:.1f}', (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     img_box = cv2.cvtColor(img_box, cv2.COLOR_BGR2RGB) # Convert color from BGR to RGB
 
-    # # Edge detection inside instances
-    # if results[0].masks is not None:
-    #     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
-    #     for mask in results[0].masks:
-    #         points = mask.xy[0].astype(np.int32)
-            
-    #         # Create mask
-    #         mask_img = np.zeros(gray.shape, dtype=np.uint8)
-    #         cv2.fillPoly(mask_img, [points], 255)
-            
-    #         # Masked region
-    #         masked_region = cv2.bitwise_and(gray, gray, mask=mask_img)
-            
-    #         # Detect edges
-    #         edges = cv2.Canny(masked_region, 50, 150)
-    #         edges_in_polygon = cv2.bitwise_and(edges, edges, mask=mask_img)
-            
-    #         # Overlay edges in green on the result
-    #         img_box[edges_in_polygon > 0] = [255, 255, 0]
+
 
     # Mask outline
     if results[0].masks is not None and (shade or contour):
@@ -191,7 +176,26 @@ while True:
                 img_box = cv2.addWeighted(img_box, alpha, img, 1-alpha,0)
             if contour is not None and contour:
                 cv2.polylines(img_box, [points], isClosed=True, color=color_contour, thickness=thickness)
-
+    # Edge detection inside instances
+    if results[0].masks is not None and edge:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
+        for mask in results[0].masks:
+            points = mask.xy[0].astype(np.int32)
+            
+            # Create mask
+            mask_img = np.zeros(gray.shape, dtype=np.uint8)
+            cv2.fillPoly(mask_img, [points], 255)
+            
+            # Masked region
+            masked_region = cv2.bitwise_and(gray, gray, mask=mask_img)
+            
+            # Detect edges
+            edges = cv2.Canny(masked_region, 50, 100)
+            edges_in_polygon = cv2.bitwise_and(edges, edges, mask=mask_img)
+            
+            # Overlay edges in green on the result
+            img_box[edges_in_polygon > 0] = color_edge
 
     proc_frame.image(img_box, caption="Processed Frame", width="stretch")
 
