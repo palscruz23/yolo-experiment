@@ -17,7 +17,6 @@ yolo-experiment/
 │   └── phone.py         # Phone camera stream detection
 ├── pose-estimation/     # Pose estimation scripts
 │   └── webcam_pose.py   # Real-time pose estimation
-├── archive/             # Legacy non-threaded implementations
 ├── data/                # Input data directory
 ├── output/              # Output directory for results
 ├── *.pt                 # Pre-trained YOLO model weights
@@ -30,12 +29,8 @@ The repository includes several pre-trained YOLO model weights:
 
 **Object Detection Models:**
 - `yolov8n.pt` - YOLOv8 Nano
-- `yolov8m.pt` - YOLOv8 Medium
 - `yolov8m-oiv7` - YOLOv8 Medium trained on Open Images V7
-- `yolov8l.pt` - YOLOv8 Large
 - `yolo12n.pt` - YOLO12 Nano
-- `yolo12s.pt` - YOLO12 Small
-- `yolo12l.pt` - YOLO12 Large
 
 **Pose Estimation Models:**
 - `yolov8n-pose.pt` - YOLOv8 Nano Pose
@@ -62,7 +57,6 @@ pip install -r requirements.txt
 - ultralytics
 - opencv-python
 - pillow
-- fiftyone
 - streamlit (required for the web application)
 
 ## Usage
@@ -191,29 +185,6 @@ The webcam and phone camera scripts use threading to separate frame capture from
 - Separate capture thread for continuous frame grabbing
 - Minimal buffer size in OpenCV capture
 
-## Troubleshooting
-
-**Camera not detected:**
-- Ensure no other application is using the camera
-- Try changing camera index: `cv2.VideoCapture(1)` instead of `cv2.VideoCapture(0)`
-
-**Phone camera connection issues:**
-- Verify phone and computer are on the same network
-- Check the IP address and port in the phone app
-- Update `phone_url` in `phone.py` accordingly
-
-**Low FPS:**
-- Use a smaller/faster model (e.g., yolo12n.pt instead of yolo12l.pt)
-- Reduce input resolution
-- Lower confidence threshold may reduce processing time
-
 ## License
 
 See LICENSE file for details.
-
-## Future Work
-
-- Additional pose estimation scripts for image and phone inputs
-- Integration with more YOLO variants
-- Support for custom trained models
-- Batch processing capabilities
