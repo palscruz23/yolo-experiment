@@ -1,5 +1,5 @@
 import streamlit as st
-from ultralytics import YOLO
+from ultralytics import YOLO, SAM
 import cv2
 import os
 import numpy as np
@@ -139,7 +139,6 @@ while True:
     if not ret:
         break
 
-    # orig_frame.image(frame, channels="BGR", caption="Original")
     results = model(frame,
                     conf = confidence,
                     # iou = iou, 
@@ -154,11 +153,11 @@ while True:
     avg_fps = sum(fps_list) / len(fps_list)
 
     if application_mode == "Object Detection":
-        img_box = results[0].plot(boxes=True, masks=True) # Draw bounding box
+        img_box = results[0].plot(boxes=True, masks=True)
     elif application_mode == "Pose Recognition":
-        img_box = results[0].plot(boxes=True, masks=True) # Draw bounding box
+        img_box = results[0].plot(boxes=False, masks=False)
     elif application_mode == "Instance Segmentation":
-        img_box = results[0].plot(boxes=False, masks=True) # Draw bounding box
+        img_box = results[0].plot(boxes=False, masks=True) 
         img = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR) # Convert color from BGR to RGB
 
     # img_box = frame
@@ -198,8 +197,6 @@ while True:
             img_box[edges_in_polygon > 0] = color_edge
 
     proc_frame.image(img_box, caption="Processed Frame", width="stretch")
-
-
 
 cap.release()
 
