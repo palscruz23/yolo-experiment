@@ -10,8 +10,8 @@ if not os.path.exists('output'):
 
 model = YOLO('yolov8n.pt')
 
-results = model('data/image.jpg')
+results = model('data/sample.mp4')
 
 for result in results:
     result.show()
-    result.save('data/output.jpg')
+    result.save('data/output.mp4')
